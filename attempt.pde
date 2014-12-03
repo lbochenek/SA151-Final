@@ -12,7 +12,7 @@ Capture cam;
 PImage img; //image being displayed
 PImage temp;
 PImage[] stickers = new PImage[3]; //possible stickers
-int sInd = 0;
+int sInd = 0; //keeps track of which sticker to place
 
 //size of camera
 int sx = 1280;
@@ -20,27 +20,27 @@ int sy = 720;
 
 int bw = 160; //width of bar on right
 int takePicButD = 100; //diameter of take picture circle
-int takePicButX = sx+(bw/2);
-int takePicButY = sy/2;
-int clickCt = 0;
-boolean takePicture = false;
-boolean takePicOver = false;
+int takePicButX = sx+(bw/2); //x of the take picture circle
+int takePicButY = sy/2; //y of the take picture circle
+boolean takePicture = false; //has the picture been taken yet?
+boolean takePicOver = false; //is the cursor over the take picture button?
 
-int filtX = 1295;
-int filtW = 130;
-float filtL = 73.125;
-int filtC = 7;
-boolean overBokeh = false;
-float bokY = 15;
+int filtX = 1295; //x coordinate of filter buttons
+int filtW = 130; //width of filter buttons
+float filtL = 73.125; //length of filter buttons
+int filtC = 7; //curve of filter buttons
+boolean overBokeh = false; //is cursor over the Bokeh filter?
+float bokY = 15; //y coordinate of Bokeh filter
 boolean overVintage = false;
 float vintY = 103.125;
 boolean overBlackAndWhite = false;
 float bawY = 191.25;
 boolean overMirror = false;
+boolean mirrored = false; //turns true after the mirror effect is used
 float mirrorY = 279.375;
+int mirrorSize = 1; //size of mirror
 boolean overStickers = false;
-boolean stickersClicked = false;
-boolean stickersGone = true;
+boolean stickersClicked = false; //has stickers been clicked w/o any other buttons being clicked?
 float stckY = 367.5;
 boolean overBlemish = false;
 float blemY = 455.625;
@@ -51,7 +51,6 @@ float even = 631.875;
 
 public void setup()
 { 
-//  println(Capture.list());
   size(sx+bw, sy);
   background(0);
   stickers[0] = loadImage("heart.png");
@@ -71,13 +70,21 @@ void draw()
  
   update(); //checks where mouse is, updates booleans accordingly
     
-  if(takePicture==false)
+  if(takePicture==false) //if the picture hasn't been taken yet, show only take pic button
   {
     image(cam, 0,0);
+    
+    //black box behind menu  
+    fill(0);
+    stroke(0);
+    rect(sx, 0, bw, sy);  
+    
+    //take pic button
     fill(200);
     stroke(200);
-    ellipse(takePicButX, takePicButY, takePicButD, takePicButD);
+    ellipse(takePicButX, takePicButY, takePicButD, takePicButD); 
   
+    //if cursor is over button, change circle color
     if(takePicOver){
       stroke(0, 116, 255);
       ellipse(takePicButX, takePicButY, takePicButD-15, takePicButD-15);
@@ -86,25 +93,27 @@ void draw()
       ellipse(takePicButX, takePicButY, takePicButD-15, takePicButD-15);
     }
     
- } else {
+ } else { //picture has been taken
    cam.stop();
    
-   image(img, 0,0);
-   if(stickersClicked)
+   image(img, 0,0); //display picture on screen
+   
+   if(stickersClicked) //if user has clicked stickers
    {
-     if(mouseX<=1280)
+     if(mouseX<=1280) //and if the mouse is not in the menu
      {
        if(sInd>=stickers.length)
          sInd = 0;
-       stickersGone = false;
-       image(stickers[sInd], mouseX-250, mouseY-250);
+       image(stickers[sInd], mouseX-250, mouseY-250); //have sticker follow mouse
      }
    }       
    
+   //black box behind menu  
    fill(0);
    stroke(0);
-   rect(sx, 0, bw, sy);
-  
+   rect(sx, 0, bw, sy);  
+   
+   //filter buttons
    fill(200);
    stroke(200);
   
@@ -188,19 +197,15 @@ void draw()
    } else {
      fill(0);
      text("EVEN COMPLEXION", filtX+5, even+25);
-   }
-   
- }
-  
+   }   
+ }  
 }  
 
 void mouseClicked()
 {
-  clickCt++;
   if(takePicOver)
   {
     takePicture = true;
-    save("captured");
     save("capturedimg");
     img = loadImage("capturedimg.tif");
   }
@@ -208,6 +213,8 @@ void mouseClicked()
   if(overBokeh)
   {
     filter(BLUR, 10);
+    if(mirrored)
+      mirrorSize /= 2;
     save("blurred");
     img = loadImage("blurred.tif");
   } 
@@ -228,8 +235,9 @@ void mouseClicked()
   }
   
   if(overMirror)
-  {
+  {    
     mirror();
+    mirrored = true;
     noTint();
     save("mirror");
     img = loadImage("mirror.tif");
@@ -238,18 +246,22 @@ void mouseClicked()
   if(overStickers)
   {
     stickersClicked = true;
+    if(mirrored)
+      mirrorSize /= 2;
     save("stickers");
     img = loadImage("stickers.tif");
   }
-  else
+  else //if stickers is not the last thing clicked, set stickersClicked to false
   {
     if(overBokeh||overVintage||overBlackAndWhite||overMirror||overBlemish||overTeethWhitener||overEvenComplex)
       stickersClicked = false;
   }
   
+  //if stickers are the most recent thing clicked, choose a sticker, then onclick, save the image
   if(stickersClicked)
   {
     whichSticker();
+    noTint();
     save("stickers");
     img = loadImage("stickers.tif");
   }
@@ -257,6 +269,8 @@ void mouseClicked()
   if(overBlemish)
   {
     copy(50,50,100,100,400,100,600,600);
+    if(mirrored)
+      mirrorSize /= 2;
     save("blemish");
     img = loadImage("blemish.tif");
   }
@@ -276,16 +290,8 @@ void mouseClicked()
     img = loadImage("complex.tif");
   }
 
-//  if(clickCt == 5)
-//  {
-//    temp = loadImage("captured.tif");
-//    image(temp, 0, 0);
-//    blend(img, 0, 0, sx, sy, 0, 0, sx, sy, DIFFERENCE);
-//  }   
-  
-  println(clickCt);
 }
-void whichSticker()
+void whichSticker() //chooses which sticker to place on cursor
 {
 //  int rand = (int) random(3);
 //  sInd = rand;
@@ -296,28 +302,7 @@ void whichSticker()
     sInd = 0;  
 }
 
-void switchPixels()
-{
-  loadPixels();
-  println(pixels.length);
-  for(int i=0; i<pixels.length-1000; i+=2)
-  {
-//    int rand1 = (int) random(0,i+random(0,998));
-    int rand1 = (int) random(0, i%random(0,998));
-    float r1 = red(pixels[i]);
-    float g1 = green(pixels[i]);
-    float b1 = blue(pixels[i]);
-    float r2 = red(pixels[rand1]);
-    float g2 = green(pixels[rand1]);
-    float b2 = blue(pixels[rand1]);
-    pixels[i] = color(r2, g2, b2);
-    pixels[rand1] = color(r1, g1, b1);
-  } 
-  updatePixels(); 
-  noLoop();
-}
-
-void evenComplex()
+void evenComplex() //scatters pixels around
 {
   loadPixels();
   for(int i=0; i<pixels.length; i+=random(0,5))
@@ -332,58 +317,35 @@ void evenComplex()
   updatePixels();
 }
 
-void gradual()
-{
-  loadPixels();
-  for(int i=0; i<pixels.length; i++)
-  {
-    float b = brightness(pixels[i]);
-    float s = saturation(pixels[i]);
-    float h = hue(pixels[i]);
-      
-    pixels[i] = color(h, s, b);
-  }
-  updatePixels(); 
-}
-
 void mirror()
 {
-  int div = (int) sx/8;
-  int split = (int) div/2;
+  int div = (int) sx/mirrorSize; //how picture each section is
+  int split = (int) div/2; //how big each original part is
   loadPixels();
   for(int i=0; i<split; i++) //loop through column
   {
     for(int j=0; j<height; j++) //loop through row
     {
-      for(int k=0; k<sx; k+=div)
+      for(int k=0; k<sx; k+=div) //loop through divisions
       {
-        int loc = k+j*width+i;
-        int end = loc+div-1-i;
+        int loc = k+j*width+i; //array location of left part of mirror
+        int end = loc+div-1-i; //array location of end of mirror section
         float r = red(pixels[loc]);
         float g = green(pixels[loc]);
         float b = blue(pixels[loc]);
-        pixels[end - i] = color(r,g,b);
+        pixels[end - i] = color(r,g,b); //set reflection to left part of mirror
       }
     }
   }
-  
-//  for(int i=0; i<sx/2; i++) //loop through column
-//  {
-//    for(int j=0; j<height; j++) //loop through row
-//    {
-//      int loc = i+j*width;
-//      int end = sx-1;
-//      float r = red(pixels[loc]);
-//      float g = green(pixels[loc]);
-//      float b = blue(pixels[loc]);
-//      int locEnd = end+j*width;
-//      pixels[locEnd-i] = color(r, g, b);
-//    }
-//
-//  }
   updatePixels();
+  
+  if(mirrorSize >= 512) //down to the pixel level; reset mirror size
+    mirrorSize = 1;
+  else
+    mirrorSize*=2; //reduce size of mirror, creating more sections
 }
 
+//detects if mouse is over the take picture button
 boolean overTakePic(int x, int y, int diameter)
 {
   float disX = x - mouseX;
@@ -459,6 +421,39 @@ boolean evenCompOver()
     return false;
 }
 
+void keyPressed()
+{
+  if(key == DELETE || key == BACKSPACE)
+  { 
+    println("reset!");
+    startOver();
+  }  
+}  
+
+//resets all initial conditions to take another photo - need to press backspace
+void startOver()
+{
+  sInd = 0;
+  takePicture = false;
+  takePicOver = false;
+  overBokeh = false;
+  overVintage = false;
+  overBlackAndWhite = false;
+  overMirror = false;
+  mirrored = false;
+  mirrorSize = 1;
+  overStickers = false;
+  stickersClicked = false;
+  overBlemish = false;
+  overTeethWhitener = false;
+  overEvenComplex = false;
+  
+  noTint();
+  
+  cam.start();
+}  
+
+//detects which booleans are true, and which are not, based off of mouse position
 void update()
 {
   if(overTakePic(takePicButX, takePicButY, takePicButD) && !takePicture)
