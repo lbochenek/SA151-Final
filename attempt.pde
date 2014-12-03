@@ -230,6 +230,7 @@ void mouseClicked()
   if(overMirror)
   {
     mirror();
+    noTint();
     save("mirror");
     img = loadImage("mirror.tif");
   }
@@ -347,21 +348,39 @@ void gradual()
 
 void mirror()
 {
+  int div = (int) sx/8;
+  int split = (int) div/2;
   loadPixels();
-  for(int i=0; i<sx/2; i++) //loop through column
+  for(int i=0; i<split; i++) //loop through column
   {
     for(int j=0; j<height; j++) //loop through row
     {
-      int loc = i+j*width;
-      int end = sx-1;
-      float r = red(pixels[loc]);
-      float g = green(pixels[loc]);
-      float b = blue(pixels[loc]);
-      int locEnd = end+j*width;
-      pixels[locEnd-i] = color(r, g, b);
+      for(int k=0; k<sx; k+=div)
+      {
+        int loc = k+j*width+i;
+        int end = loc+div-1-i;
+        float r = red(pixels[loc]);
+        float g = green(pixels[loc]);
+        float b = blue(pixels[loc]);
+        pixels[end - i] = color(r,g,b);
+      }
     }
-
   }
+  
+//  for(int i=0; i<sx/2; i++) //loop through column
+//  {
+//    for(int j=0; j<height; j++) //loop through row
+//    {
+//      int loc = i+j*width;
+//      int end = sx-1;
+//      float r = red(pixels[loc]);
+//      float g = green(pixels[loc]);
+//      float b = blue(pixels[loc]);
+//      int locEnd = end+j*width;
+//      pixels[locEnd-i] = color(r, g, b);
+//    }
+//
+//  }
   updatePixels();
 }
 
