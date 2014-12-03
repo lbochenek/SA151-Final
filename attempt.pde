@@ -10,13 +10,13 @@ import processing.video.*;
 
 Capture cam;
 PImage img; //image being displayed
-PImage temp;
 PImage[] stickers = new PImage[3]; //possible stickers
 int sInd = 0; //keeps track of which sticker to place
 
 //size of camera
 int sx = 1280;
 int sy = 720;
+int frames = 30;
 
 int bw = 160; //width of bar on right
 int takePicButD = 100; //diameter of take picture circle
@@ -37,6 +37,7 @@ boolean overBlackAndWhite = false;
 float bawY = 191.25;
 boolean overMirror = false;
 boolean mirrored = false; //turns true after the mirror effect is used
+boolean mirrorFixed = false;
 float mirrorY = 279.375;
 int mirrorSize = 1; //size of mirror
 boolean overStickers = false;
@@ -51,12 +52,13 @@ float even = 631.875;
 
 public void setup()
 { 
+  // println(Capture.list());
   size(sx+bw, sy);
   background(0);
   stickers[0] = loadImage("heart.png");
   stickers[1] = loadImage("star.png");
   stickers[2] = loadImage("sparkles.png");
-  cam = new Capture(this, sx, sy, 30);
+  cam = new Capture(this, sx, sy, frames);
   cam.start(); 
 }
 
@@ -127,94 +129,110 @@ void draw()
    rect(filtX, even, filtW, filtL, filtC);
   
    fill(0);
+   textSize(16);
+
    if(overBokeh)
    {
      fill(0, 116, 255);
-     text("BOKEH", filtX+5, bokY+25);
+     text("BOKEH", filtX+37, bokY+43);
    } else {
      fill(0);
-     text("BOKEH", filtX+5, bokY+25);
+     text("BOKEH", filtX+37, bokY+43);
    }
    
    if(overVintage)
    {
      fill(0, 116, 255);
-     text("VINTAGE", filtX+5, vintY+25);
+     text("VINTAGE", filtX+30, vintY+43);
    } else {
      fill(0);
-     text("VINTAGE", filtX+5, vintY+25);
+     text("VINTAGE", filtX+30, vintY+43);
    }
    
    if(overBlackAndWhite)
    {
      fill(0, 116, 255);
-     text("BLACK AND WHITE", filtX+5, bawY+25);
+     text("BLACK", filtX+40, bawY+33);
+     text("AND WHITE", filtX+20, bawY+53);
+
    } else {
      fill(0);
-     text("BLACK AND WHITE", filtX+5, bawY+25);
+     text("BLACK", filtX+40, bawY+33);
+     text("AND WHITE", filtX+20, bawY+53);
    }
    
    if(overMirror)
    {
      fill(0, 116, 255);
-     text("MIRROR", filtX+5, mirrorY+25);
+     text("MIRROR", filtX+34, mirrorY+43);
    } else {
      fill(0);
-     text("MIRROR", filtX+5, mirrorY+25);
+     text("MIRROR", filtX+34, mirrorY+43);
    }
    
    if(overStickers)
    {
      fill(0, 116, 255);
-     text("STICKERS", filtX+5, stckY+25);
+     text("STICKERS", filtX+30, stckY+43);
    } else {
      fill(0);
-     text("STICKERS", filtX+5, stckY+25);
+     text("STICKERS", filtX+30, stckY+43);
    }
    
    if(overBlemish)
    {
      fill(0, 116, 255);
-     text("BLEMISH REMOVER", filtX+5, blemY+25);
+     text("BLEMISH", filtX+34, blemY+33);
+     text("REMOVER", filtX+30, blemY+53);
    } else {
      fill(0);
-     text("BLEMISH REMOVER", filtX+5, blemY+25);
+     text("BLEMISH", filtX+34, blemY+33);
+     text("REMOVER", filtX+30, blemY+53);
    }
    
    if(overTeethWhitener)
    {
      fill(0, 116, 255);
-     text("TEETH WHITENER", filtX+5, teethY+25);
+     text("TEETH", filtX+37, teethY+33);
+     text("WHITENER", filtX+26, teethY+53);
    } else {
      fill(0);
-     text("TEETH WHITENER", filtX+5, teethY+25);
+     text("TEETH", filtX+37, teethY+33);
+     text("WHITENER", filtX+26, teethY+53);
    }
    
    if(overEvenComplex)
    {
      fill(0, 116, 255);
-     text("EVEN COMPLEXION", filtX+5, even+25);
+     text("EVEN", filtX+45, even+33);
+     text("COMPLEXION", filtX+13, even+53);
    } else {
      fill(0);
-     text("EVEN COMPLEXION", filtX+5, even+25);
+     text("EVEN", filtX+45, even+33);
+     text("COMPLEXION", filtX+13, even+53);
    }   
  }  
 }  
 
 void mouseClicked()
 {
+  //if over the take picture button
   if(takePicOver)
   {
     takePicture = true;
-    save("capturedimg");
-    img = loadImage("capturedimg.tif");
+    save("capturedimg"); //saves a tif of the screen
+    img = loadImage("capturedimg.tif"); //changes the image being displayed
   }
- 
+
   if(overBokeh)
   {
     filter(BLUR, 10);
-    if(mirrored)
+    noTint(); //prevent the tint from multiplying
+    if(mirrored && !mirrorFixed) //if the mirror effect has been used, reduce mirroring to fold change into mirror
+    {  
       mirrorSize /= 2;
+      mirrorFixed = true;
+    }  
     save("blurred");
     img = loadImage("blurred.tif");
   } 
@@ -246,8 +264,11 @@ void mouseClicked()
   if(overStickers)
   {
     stickersClicked = true;
-    if(mirrored)
+    if(mirrored && !mirrorFixed) 
+    {  
       mirrorSize /= 2;
+      mirrorFixed = true;
+    } 
     save("stickers");
     img = loadImage("stickers.tif");
   }
@@ -269,8 +290,11 @@ void mouseClicked()
   if(overBlemish)
   {
     copy(50,50,100,100,400,100,600,600);
-    if(mirrored)
+    if(mirrored && !mirrorFixed) 
+    {  
       mirrorSize /= 2;
+      mirrorFixed = true;
+    } 
     save("blemish");
     img = loadImage("blemish.tif");
   }
@@ -298,7 +322,7 @@ void whichSticker() //chooses which sticker to place on cursor
   int temp = sInd;
   if(sInd<stickers.length)
     sInd++;
-  else
+  else //restart cycle
     sInd = 0;  
 }
 
@@ -319,7 +343,8 @@ void evenComplex() //scatters pixels around
 
 void mirror()
 {
-  int div = (int) sx/mirrorSize; //how picture each section is
+  mirrorFixed = false; //reset boolean
+  int div = (int) sx/mirrorSize; //how big each section is
   int split = (int) div/2; //how big each original part is
   loadPixels();
   for(int i=0; i<split; i++) //loop through column
@@ -441,6 +466,7 @@ void startOver()
   overBlackAndWhite = false;
   overMirror = false;
   mirrored = false;
+  mirrorFixed = false;
   mirrorSize = 1;
   overStickers = false;
   stickersClicked = false;
