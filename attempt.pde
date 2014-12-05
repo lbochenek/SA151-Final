@@ -344,9 +344,7 @@ void evenComplex() //scatters pixels around
 void mirror()
 {
   mirrorFixed = false; //reset boolean
-  int mSize = (int) Math.ceil(mirrorSize);
-  println("mirrorSize!" + mirrorSize);
-  println("mSize!" + mSize);
+  int mSize = (int) Math.ceil(mirrorSize); //prevent division by zero
   int div = (int) sx/mSize; //how big each section is
   int split = (int) div/2; //how big each original part is
   loadPixels();
@@ -458,7 +456,7 @@ void keyPressed()
   }  
 }  
 
-//resets all initial conditions to take another photo - need to press backspace
+//resets all initial conditions to take another photo - need to press backspace/delete
 void startOver()
 {
   sInd = 0;
