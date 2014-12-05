@@ -39,7 +39,7 @@ boolean overMirror = false;
 boolean mirrored = false; //turns true after the mirror effect is used
 boolean mirrorFixed = false;
 float mirrorY = 279.375;
-int mirrorSize = 1; //size of mirror
+float mirrorSize = 1; //size of mirror
 boolean overStickers = false;
 boolean stickersClicked = false; //has stickers been clicked w/o any other buttons being clicked?
 float stckY = 367.5;
@@ -344,7 +344,10 @@ void evenComplex() //scatters pixels around
 void mirror()
 {
   mirrorFixed = false; //reset boolean
-  int div = (int) sx/mirrorSize; //how big each section is
+  int mSize = (int) Math.ceil(mirrorSize);
+  println("mirrorSize!" + mirrorSize);
+  println("mSize!" + mSize);
+  int div = (int) sx/mSize; //how big each section is
   int split = (int) div/2; //how big each original part is
   loadPixels();
   for(int i=0; i<split; i++) //loop through column
