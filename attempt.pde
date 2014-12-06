@@ -1,6 +1,7 @@
 /*
 * http://funprogramming.org/121-Using-a-webcam-in-Processing.html
 * http://forum.processing.org/one/topic/simple-still-image-capture-and-load.html
+* http://funprogramming.org/89-Create-your-own-photo-filters.html
 * https://processing.org/examples/button.html
 * https://processing.org/tutorials/pixels/
 */
